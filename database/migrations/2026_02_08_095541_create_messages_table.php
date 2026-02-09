@@ -11,31 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+       Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->forigein('conversation_id')->constrained();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
 
-            $table->unsignedBigInteger('sender_id');
-            $table->forigein('sender_id')->references('id')->on('users');
+            $table->unsignedBigInteger('sender_id')->nullable();// or uuid()
+            $table->foreign('sender_id')->references('id')->on('users')->nullOnDelete();
 
-            $twble->unsignedBigInteger('receiver_id');
-            $table->forigein('receiver_id')->references('id')->on('users');
+            $table->unsignedBigInteger('receiver_id')->nullable();// or uuid()
+            $table->foreign('receiver_id')->references('id')->on('users')->nullOnDelete();
 
-            $table->timestamps('read_at')->nullable();
 
-            //deleted_actions
+            $table->timestamp('read_at')->nullable();
 
-            $table->timestamps('receiver_deleted_at')->nullable();
-            $table->timestamps('sender_deleted_at')->nullable();
+            //delete actions 
+            $table->timestamp('receiver_deleted_at')->nullable();
+            $table->timestamp('sender_deleted_at')->nullable();
 
             $table->text('body')->nullable();
 
-
-            $table->softDeletes();
-
             $table->timestamps();
-        });
-    }
+            }); 
+            
+            }
+    
 
     /**
      * Reverse the migrations.
