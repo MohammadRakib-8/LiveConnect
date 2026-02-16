@@ -14,7 +14,7 @@
             </div>
 
             <div class="mt-6">
-                <livewire:chat.index />
+                <livewire:chat.chat />
             </div>
         </div>
     </div>

@@ -1,4 +1,11 @@
 <div class="flex flex-col h-full">
+     <!-- ADD THIS LINE FOR DEBUGGING -->
+    <div class="bg-red-500 text-white p-2 text-center font-bold">
+        Current Conversation ID: {{ $conversationId ?? 'NULL' }}
+    </div>
+{{-- <pre>
+{{ dump($selectedConversation) }}
+</pre> --}}
 
     <!-- Chat Header -->
     <header class="border-b p-3 flex items-center gap-3 bg-white">
@@ -6,7 +13,7 @@
              class="w-10 h-10 rounded-full" />
 
         <div>
-            <h6 class="font-semibold">User Name</h6>
+            <h6 class="font-semibold">{{$selectedConversation?->getReceiver()?->name}}</h6>
             <span class="text-xs text-green-500">Online</span>
         </div>
     </header>
