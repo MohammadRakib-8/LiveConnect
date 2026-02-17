@@ -1,4 +1,10 @@
-<div class="flex flex-col h-full relative">
+<div   
+{{-- x-data="{height:0,
+    conversationElement:document.getElementById('conversation')}", 
+    x-init="height=conversationElement.scrollHeight;
+    nextTick(()=>conversationElement.scrollTop = height)" --}}
+    class="flex flex-col h-full relative">
+
     
     <!-- DEBUGGING BLOCK -->
     <div class="bg-red-500 text-white p-2 text-center font-bold">
