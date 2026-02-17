@@ -26,7 +26,6 @@
         </header>
 
         <!-- Messages Area -->
-        <!-- Added x-data to listen for scroll event -->
         <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" 
               x-data="{ }" 
               x-on:scroll-to-bottom.window="$el.scrollTop = $el.scrollHeight">
@@ -34,24 +33,46 @@
             @if($loadedMessages && $loadedMessages->count() > 0)
                 @foreach($loadedMessages as $message)
                     @if($message->sender_id == auth()->id())
-                        <!-- Sender Message (Me) -->
+                        <!-- SENDER MESSAGE (ME) -->
                         <div class="flex justify-end">
                             <div class="flex flex-col items-end max-w-xs lg:max-w-md">
                                 <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-none shadow text-sm">
                                     {{ $message->body }}
                                 </div>
-                                <span class="text-[10px] text-gray-400 mt-1">
-                                    {{ $message->created_at->format('H:i') }}
-                                </span>
+                                
+                                <!-- Message Status (Ticks) -->
+                                <div class="flex items-center gap-1 mt-1">
+                                    <span class="text-[10px] text-gray-400 mr-1">
+                                        {{ $message->created_at->format('g:i a') }}
+                                    </span>
+
+                                    {{-- LOGIC: Double Tick if Read, Single Tick if Not Read --}}
+                                    @if($message->isRead())
+                                        {{-- Double Tick (Seen) --}}
+                                        <div x-data="{ read: true }" x-cloak>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9CA3AF" class="bi bi-check2-all" viewBox="0 0 16 16">
+                                                <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+                                                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
+                                            </svg>
+                                        </div>
+                                    @else
+                                        {{-- Single Tick (Sent but not Seen) --}}
+                                        <div x-data="{ read: false }" x-cloak>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9CA3AF" class="bi bi-check2" viewBox="0 0 16 16">
+                                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+
                             </div>
                             <!-- My Avatar -->
                             <img src="{{ auth()->user()->profile_photo_url }}" 
                                  class="w-8 h-8 rounded-full object-cover ml-2 self-end mb-1" />
                         </div>
                     @else
-                        <!-- Receiver Message (Them) -->
+                        <!-- RECEIVER MESSAGE (THEM) -->
                         <div class="flex items-start gap-2">
-                            <!-- Their Avatar -->
                             @if($message->sender)
                                 <img src="{{ $message->sender->profile_photo_url ?? 'https://i.pravatar.cc/150?img=5' }}"
                                      class="w-8 h-8 rounded-full object-cover" />
@@ -64,7 +85,7 @@
                                     {{ $message->body }}
                                 </div>
                                 <span class="text-[10px] text-gray-400 mt-1">
-                                    {{ $message->created_at->format('H:i') }}
+                                    {{ $message->created_at->format('g:i a') }}
                                 </span>
                             </div>
                         </div>
