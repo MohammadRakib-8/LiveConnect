@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Conversation;
+use App\Models\User;
 
 class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+    protected $fillable = [
         'body',
         'sender_id',
         'receiver_id',
@@ -19,21 +21,28 @@ class Message extends Model
         'sender_deleted_at',
     ];
 
+    protected $dates = ['read_at', 'receiver_deleted_at', 'sender_deleted_at'];
 
-    protected $dates=['read_at','receiver_deleted_at','sender_deleted_at'];
-
-
-    /* relationship */
+    /* Relationships */
 
     public function conversation()
     {
         return $this->belongsTo(Conversation::class);
     }
 
-
-    public function isRead():bool
+    
+    public function sender()
     {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
 
-         return $this->read_at != null;
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    public function isRead(): bool
+    {
+        return $this->read_at != null;
     }
 }
