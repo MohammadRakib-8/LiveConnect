@@ -6,15 +6,15 @@
     class="flex flex-col h-full relative">
 
     
-    <div class="bg-red-500 text-white p-2 text-center font-bold">
+    {{-- <div class="bg-red-500 text-white p-2 text-center font-bold">
         Current Conversation ID: {{ $conversationId ?? 'NULL' }}
-    </div>
+    </div> --}}
 
     @if($conversationId)
         <!-- SHOW CHAT INTERFACE -->
 
         <!-- Chat Header -->
-        <header class="border-b p-3 flex items-center gap-3 bg-white z-10">
+        <header class="border-b p-3 flex items-center gap-3 bg-amber-50">
             @if($selectedConversation && $selectedConversation->getReceiver())
                 <img src="{{ $selectedConversation->getReceiver()->profile_photo_url ?? 'https://i.pravatar.cc/150?img=5' }}"
                      class="w-10 h-10 rounded-full object-cover" />
@@ -31,9 +31,9 @@
         </header>
 
         <!-- Messages Area -->
-        <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" 
+        <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr from-amber-200 via-amber-100 to-white" 
               x-data="{ }" 
-              x-on:scroll-to-bottom.window="$el.scrollTop = $el.scrollHeight">
+              x-on:scroll-to-bottom.window="$el.scr = $el.scrollHeight">
             
             @if($loadedMessages && $loadedMessages->count() > 0)
                 @foreach($loadedMessages as $message)
@@ -41,7 +41,7 @@
                         <!-- SENDER MESSAGE -->
                         <div class="flex justify-end">
                             <div class="flex flex-col items-end max-w-xs lg:max-w-md">
-                                <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-none shadow text-sm">
+                                <div class="bg-lime-200 text-black p-4 rounded-2xl rounded-tr-none shadow text-base">
                                     {{ $message->body }}
                                 </div>
                                 
@@ -55,7 +55,7 @@
                                     @if($message->isRead())
                                         {{-- Double Tick (Seen) --}}
                                         <div x-data="{ read: true }" x-cloak>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9CA3AF" class="bi bi-check2-all" viewBox="0 0 16 16">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#3B82F6" class="bi bi-check2-all" viewBox="0 0 16 16">
                                                 <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
                                                 <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
                                             </svg>
