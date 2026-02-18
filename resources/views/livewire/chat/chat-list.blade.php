@@ -34,30 +34,52 @@
 
                         <aside class="grid grid-cols-12 w-full">
                             <!-- MAIN CONTAINER -->
-                           
                             <div class="col-span-11 border-b pb-2 border-gray-200 relative flex flex-col justify-center gap-1 p-1 w-full">
 
-                                {{-- < Name and Time --> --}}
+                                <!--Name/Time -->
                                 <div class="flex justify-between w-full items-center">
                                     <h6 class="truncate font-medium tracking-wider text-gray-900">
                                         {{ $conversation->getReceiver()->name }}
                                     </h6>
-                                    <small class="text-gray-700">
+                                    <small class="text-gray-700 text-xs">
                                         {{ $conversation->messages?->last()?->created_at?->shortAbsoluteDiffForHumans() }} 
                                     </small>
                                 </div>
-
-                                <div class="w-full truncate text-sm text-gray-500 font-normal pr-8">
-                                    @if($conversation->messages && $conversation->messages->last())
-                                        {{ $conversation->messages->last()->body }}
-                                    @else
-                                        <span class="italic text-gray-400">Start a conversation...</span>
+                            
+                                <div class="flex items-center gap-1 w-full">
+                                    
+                                    @if($lastMessage = $conversation->messages->last())
+                                        @if($lastMessage->sender_id == auth()->id())
+                                            <div class="flex items-center shrink-0">
+                                                @if($lastMessage->isRead())
+                                                    {{-- Double--}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9CA3AF" class="bi bi-check2-all" viewBox="0 0 16 16">
+                                                        <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+                                                        <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
+                                                    </svg>
+                                                @else
+                                                    {{-- Single--}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9CA3AF" class="bi bi-check2" viewBox="0 0 16 16">
+                                                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                        @endif
                                     @endif
+
+                                    <!-- Message Text -->
+                                    <div class="truncate text-sm text-gray-500 font-normal">
+                                        @if($conversation->messages && $conversation->messages->last())
+                                            {{ $conversation->messages->last()->body }}
+                                        @else
+                                            <span class="italic text-gray-400">Start a conversation...</span>
+                                        @endif
+                                    </div>
                                 </div>
                                 
-                                <!-- Badge OUTSIDE the message div -->
+                                <!-- Unread Badge -->
                                 @if($conversation->unreadMessagesCount() > 0)
-                                    <span class="absolute bellow-0 right-4 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm z-20">
+                                    <span class="absolute bottom-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm z-20">
                                         {{ $conversation->unreadMessagesCount() }}
                                     </span>
                                 @endif
