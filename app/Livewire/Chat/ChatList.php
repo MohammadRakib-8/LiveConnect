@@ -13,7 +13,10 @@ class ChatList extends Component
     {
         $user = auth()->user();
         return view('livewire/chat.chat-list', [
-            'conversations' => $user->conversations()->with('messages', 'sender', 'receiver')->get()
+            'conversations' => $user->conversations()
+            ->with('messages', 'sender', 'receiver')
+            ->latest('updated_at') // This sorts by the timestamp we just updated
+            ->get()
         ]);
     }
     

@@ -6,7 +6,6 @@
     class="flex flex-col h-full relative">
 
     
-    <!-- DEBUGGING BLOCK -->
     <div class="bg-red-500 text-white p-2 text-center font-bold">
         Current Conversation ID: {{ $conversationId ?? 'NULL' }}
     </div>
@@ -39,7 +38,7 @@
             @if($loadedMessages && $loadedMessages->count() > 0)
                 @foreach($loadedMessages as $message)
                     @if($message->sender_id == auth()->id())
-                        <!-- SENDER MESSAGE (ME) -->
+                        <!-- SENDER MESSAGE -->
                         <div class="flex justify-end">
                             <div class="flex flex-col items-end max-w-xs lg:max-w-md">
                                 <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-tr-none shadow text-sm">
@@ -73,8 +72,8 @@
 
                             </div>
                             <!-- My Avatar -->
-                            <img src="{{ auth()->user()->profile_photo_url }}" 
-                                 class="w-8 h-8 rounded-full object-cover ml-2 self-end mb-1" />
+                            {{-- <img src="{{ auth()->user()->profile_photo_url }}" 
+                                 class="w-8 h-8 rounded-full object-cover ml-2 self-end mb-1" /> --}}
                         </div>
                     @else
                         <!-- RECEIVER MESSAGE (THEM) -->
@@ -83,7 +82,7 @@
                                 <img src="{{ $message->sender->profile_photo_url ?? 'https://i.pravatar.cc/150?img=5' }}"
                                      class="w-8 h-8 rounded-full object-cover" />
                             @else
-                                <img src="https://i.pravatar.cc/150?img=5" class="w-8 h-8 rounded-full object-cover" />
+                                <img src="" class="w-8 h-8 rounded-full object-cover" />
                             @endif
                             
                             <div class="flex flex-col items-start max-w-xs lg:max-w-md">

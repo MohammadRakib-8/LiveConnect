@@ -23,7 +23,6 @@ class ChatBox extends Component
     public function loadMessages()
     {
         if ($this->conversationId) {
-            // Load Conversation AND Messages together
             $this->selectedConversation = Conversation::with('sender', 'receiver')
                 ->find($this->conversationId);
 
@@ -68,11 +67,18 @@ class ChatBox extends Component
         // 4. Clear Input
         $this->reset('body');
 
+         // Updatedd Conversation  at the top when a new message is sent to ensure the latest conversation order in the list
+        $this->selectedConversation->updated_at = now();
+        $this->selectedConversation->save();
+
         // 5. Reload Messages to show the new one
         $this->loadMessages();
         
         // 6. Dispatch event to scroll to bottom (Optional)
         $this->dispatch('scroll-to-bottom');
+
+        //    $this->dispatch('refresh-chat-list');
+
     }
 
     public function render()
