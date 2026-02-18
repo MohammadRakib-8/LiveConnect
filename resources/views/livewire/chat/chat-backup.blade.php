@@ -6,12 +6,11 @@
 
     <div class="grid w-full border-l h-full relative overflow-y-auto" style="contain:content">
         
-        <!-- Pass conversationId, and use the ID as the key to force a refresh -->
         <livewire:chat.chat-box 
             :conversationId="$selectedConversation?->id" 
             :key="$selectedConversation?->id ?? 'empty'" 
         />
-
+ 
     </div>
 
 </div>

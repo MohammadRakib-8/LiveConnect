@@ -8,8 +8,6 @@
                  <h5 class="font-extrabold text-2xl">Chats</h5>
             </div>
         </div>
-
-        {{-- Filters --}}
         <div class="flex gap-3 items-center overflow-x-scroll p-2 bg-white">
             <button @click="type='all'" :class="{'bg-blue-100 border-0 text-black':type=='all'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 All
@@ -25,36 +23,53 @@
             @if ($conversations)
                 @foreach ($conversations as $key => $conversation)
                    <li
-    id="conversation-{{$conversation->id}}"
-    wire:key="{{$conversation->id}}"
-    wire:click="selectConversation({{$conversation->id}})"
-    class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-700/70 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id==$selectedConversation?->id ? 'bg-gray-100/70':''}}"
->
-    <!-- Just use a div or span, NOT an <a> tag -->
-    <div class="shrink-0">
-        <x-avatar src="https://picsum.photos/200/200?random={{$key}}" />
-    </div>
+                        id="conversation-{{$conversation->id}}"
+                        wire:key="{{$conversation->id}}"
+                        wire:click="selectConversation({{$conversation->id}})"
+                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-700/70 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id==$selectedConversation?->id ? 'bg-gray-100/70':''}}"
+                    >
+                        <div class="shrink-0">
+                            <x-avatar src="https://picsum.photos/200/200?random={{$key}}" />
+                        </div>
 
-    <aside class="grid grid-cols-12 w-full">
-        <!-- Also remove the <a> wrapper here -->
-        <div class="col-span-11 border-b pb-2 border-gray-200 relative overflow-hidden truncate leading-5 w-full flex-nowrap p-1">
-            <div class="flex justify-between w-full items-center">
-                <h6 class="truncate font-medium tracking-wider text-gray-900">
-                    {{$conversation->getReceiver()->name}}
-                </h6>
-                <small class="text-gray-700">
-                    {{$conversation->messages?->last()?->created_at?->shortAbsoluteDiffForHumans()}} 
-                </small>
-            </div>
-        </div>
-    </aside>
-</li>
+                        <aside class="grid grid-cols-12 w-full">
+                            <!-- MAIN CONTAINER -->
+                           
+                            <div class="col-span-11 border-b pb-2 border-gray-200 relative flex flex-col justify-center gap-1 p-1 w-full">
+
+                                {{-- < Name and Time --> --}}
+                                <div class="flex justify-between w-full items-center">
+                                    <h6 class="truncate font-medium tracking-wider text-gray-900">
+                                        {{ $conversation->getReceiver()->name }}
+                                    </h6>
+                                    <small class="text-gray-700">
+                                        {{ $conversation->messages?->last()?->created_at?->shortAbsoluteDiffForHumans() }} 
+                                    </small>
+                                </div>
+
+                                <div class="w-full truncate text-sm text-gray-500 font-normal pr-8">
+                                    @if($conversation->messages && $conversation->messages->last())
+                                        {{ $conversation->messages->last()->body }}
+                                    @else
+                                        <span class="italic text-gray-400">Start a conversation...</span>
+                                    @endif
+                                </div>
+                                
+                                <!-- Badge OUTSIDE the message div -->
+                                @if($conversation->unreadMessagesCount() > 0)
+                                    <span class="absolute bellow-0 right-4 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm z-20">
+                                        {{ $conversation->unreadMessagesCount() }}
+                                    </span>
+                                @endif
+                                
+                            </div>
+                        </aside>
+                    </li>
                 @endforeach
             @endif
         </ul>
     </main>
     <script>
-console.log(@json($selectedConversation));
-</script>
-
+        console.log(@json($selectedConversation));
+    </script>
 </div>

@@ -5,14 +5,14 @@ namespace App\Livewire\Chat;
 use Livewire\Component; 
 use App\Models\Conversation;
 use App\Models\Message;
-use Illuminate\Support\Facades\Validator; // Import for manual validation
+use Illuminate\Support\Facades\Validator; 
 
 class ChatBox extends Component
 {
     public $selectedConversation; 
     public $conversationId; 
     public $body;
-    public $loadedMessages; // New variable to hold messages
+    public $loadedMessages; 
 
     public function mount($conversationId = null)
     {
@@ -28,7 +28,7 @@ class ChatBox extends Component
 
             // Load Messages separately to avoid the $messages conflict
             $this->loadedMessages = Message::where('conversation_id', $this->conversationId)
-                ->with('sender') // Load sender for avatars
+                ->with('sender') 
                 ->orderBy('created_at', 'asc')
                 ->get();
         } else {
@@ -44,14 +44,12 @@ class ChatBox extends Component
 
     public function sendMessage()
     {
-        // 1. Manual Validation (Fixes the crash)
         Validator::make([
             'body' => $this->body
         ], [
             'body' => 'required|string|max:1700'
         ])->validate();
 
-        // 2. Safety Check
         if (!$this->selectedConversation) {
             return;
         }
@@ -64,20 +62,18 @@ class ChatBox extends Component
             'body' => $this->body
         ]);
 
-        // 4. Clear Input
+    
         $this->reset('body');
 
          // Updatedd Conversation  at the top when a new message is sent to ensure the latest conversation order in the list
         $this->selectedConversation->updated_at = now();
         $this->selectedConversation->save();
 
-        // 5. Reload Messages to show the new one
         $this->loadMessages();
         
-        // 6. Dispatch event to scroll to bottom (Optional)
         $this->dispatch('scroll-to-bottom');
 
-        //    $this->dispatch('refresh-chat-list');
+           $this->dispatch('refresh-chat-list');
 
     }
 

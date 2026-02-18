@@ -4,6 +4,8 @@ namespace App\Livewire\Chat;
 
 use Livewire\Component;
 
+use Livewire\Attributes\On; 
+
 class ChatList extends Component
 {
     public $selectedConversation = null;
@@ -15,14 +17,19 @@ class ChatList extends Component
         return view('livewire/chat.chat-list', [
             'conversations' => $user->conversations()
             ->with('messages', 'sender', 'receiver')
-            ->latest('updated_at') // This sorts by the timestamp we just updated
+            ->latest('updated_at') 
             ->get()
         ]);
     }
     
   public function selectConversation($conversationId)
 {
-    // Use named parameter 'conversationId' to be explicit
     $this->dispatch('selectConversation', conversationId: $conversationId);
 }
+
+ #[On('refresh-chat-list')]
+    public function refreshList()
+    { 
+        // listener for refresh the chatlist last message show
+    }
 }

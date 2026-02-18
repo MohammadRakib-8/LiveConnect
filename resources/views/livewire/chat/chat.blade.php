@@ -20,7 +20,6 @@
 
     <div class="grid w-full border-l h-full relative overflow-y-auto" style="contain:content">
         
-        <!-- This line MUST be here, passing the ID -->
         <livewire:chat.chat-box 
             :conversationId="$selectedConversation?->id" 
             :key="$selectedConversation?->id ?? 'empty'" 

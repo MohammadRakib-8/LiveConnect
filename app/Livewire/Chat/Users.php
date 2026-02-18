@@ -31,12 +31,9 @@ class Users extends Component{
         })->first();
 
 
-        ///////
  if ($existingConversation) {
-          # Conversation already exists, redirect to existing conversation
           return redirect()->route('chat', ['query' => $existingConversation->id]);
       }  
-      # Create new conversation
       $createdConversation = Conversation::create([
           'sender_id' => $authenticatedUserId,
           'receiver_id' => $userId,
