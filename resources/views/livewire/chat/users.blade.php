@@ -4,14 +4,13 @@
 
 
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-2 ">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 p-2  ">
 
         @foreach ($users as $key=> $user)
             
 
 
-        {{-- child --}}
-        <div class="w-full bg-white border border-gray-200 rounded-lg p-5 shadow">
+        <div class="w-full bg-lime-50 border border-gray-200 rounded-lg p-5 shadow">
 
             <div class="flex flex-col items-center pb-10">
 

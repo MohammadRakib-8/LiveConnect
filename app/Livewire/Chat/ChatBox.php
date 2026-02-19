@@ -13,6 +13,7 @@ class ChatBox extends Component
     public $conversationId; 
     public $body;
     public $loadedMessages; 
+    public $paginated_var=10;
 
     public function mount($conversationId = null)
     {
@@ -26,15 +27,32 @@ class ChatBox extends Component
             $this->selectedConversation = Conversation::with('sender', 'receiver')
                 ->find($this->conversationId);
 
-            // Load Messages separately to avoid the $messages conflict
             $this->loadedMessages = Message::where('conversation_id', $this->conversationId)
                 ->with('sender') 
                 ->orderBy('created_at', 'asc')
                 ->get();
+//count
+$countMessages = Message::where('conversation_id', $this->conversationId)->count();
+
+                //skip and query 
+                $this->loadMessages=Message::where('conversation_id', $this->conversationId)
+                ->skip($countMessages - $this->paginated_var)
+                ->take($this->paginated_var)
+                ->get();
+
+                return $this->loadedMessages;
+
+
         } else {
             $this->selectedConversation = null;
             $this->loadedMessages = collect();
         }
+    }
+
+    public function loadMessagesMore()
+    {
+        $this->paginated_var += 10;
+        $this->loadMessages();
     }
 
     public function updatedConversationId()
@@ -54,7 +72,6 @@ class ChatBox extends Component
             return;
         }
 
-        // 3. Create Message
         $createdMessage = Message::create([
             'conversation_id' => $this->selectedConversation->id,
             'sender_id' => auth()->id(),
