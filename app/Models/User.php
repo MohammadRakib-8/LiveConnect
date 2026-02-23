@@ -50,4 +50,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Conversation::class,'sender_id')->orWhere('receiver_id',$this->id);
     }
+
+     public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'users.'.$this->id;
+    }
 }

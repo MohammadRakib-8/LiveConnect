@@ -43,7 +43,6 @@ class Users extends Component{
         
     }
 
-
     public function render()
     {
         return view('livewire.chat.users', [

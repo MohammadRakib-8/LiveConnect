@@ -16,7 +16,6 @@ class Conversation extends Model
         'sender_id'
     ];
 
-    // 1. Define these relationships
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
@@ -32,10 +31,8 @@ class Conversation extends Model
         return $this->hasMany(Message::class);
     }
 
-    // You can keep this helper, or use the relationships directly in the view
 public function getReceiver()
 {
-    // IMPORTANT: Use the relationship, do not run User::firstWhere(...) again
     if ($this->sender_id == auth()->id()) {
         return $this->receiver;
     }

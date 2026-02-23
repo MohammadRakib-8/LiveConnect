@@ -2,10 +2,13 @@
 
 namespace App\Livewire\Chat;
 
-use Livewire\Component; 
 use App\Models\Conversation;
 use App\Models\Message;
+
+use App\Notifications\MessageSent;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; 
+use Livewire\Component; 
 
 class ChatBox extends Component
 {
@@ -13,7 +16,8 @@ class ChatBox extends Component
     public $conversationId; 
     public $body;
     public $loadedMessages; 
-    public $paginated_var=10;
+    public $paginated_var = 10;
+    public $oldestMessageId; 
 
     public function mount($conversationId = null)
     {
@@ -27,21 +31,17 @@ class ChatBox extends Component
             $this->selectedConversation = Conversation::with('sender', 'receiver')
                 ->find($this->conversationId);
 
-            $this->loadedMessages = Message::where('conversation_id', $this->conversationId)
+            $messages = Message::where('conversation_id', $this->conversationId)
                 ->with('sender') 
-                ->orderBy('created_at', 'asc')
-                ->get();
-//count
-$countMessages = Message::where('conversation_id', $this->conversationId)->count();
-
-                //skip and query 
-                $this->loadMessages=Message::where('conversation_id', $this->conversationId)
-                ->skip($countMessages - $this->paginated_var)
-                ->take($this->paginated_var)
+                ->latest('id')
+                ->take($this->paginated_var) 
                 ->get();
 
-                return $this->loadedMessages;
+            $this->loadedMessages = $messages->reverse();
 
+            if ($messages->isNotEmpty()) {
+                $this->oldestMessageId = $messages->first()->id;
+            }
 
         } else {
             $this->selectedConversation = null;
@@ -51,17 +51,35 @@ $countMessages = Message::where('conversation_id', $this->conversationId)->count
 
     public function loadMessagesMore()
     {
-        $this->paginated_var += 10;
-        $this->loadMessages();
+        if (!$this->oldestMessageId) {
+            return;
+        }
+
+        $olderMessages = Message::where('conversation_id', $this->conversationId)
+            ->where('id', '<', $this->oldestMessageId)
+            ->with('sender')
+            ->latest('id')
+            ->take($this->paginated_var)
+            ->get()
+            ->reverse();
+
+        if ($olderMessages->isNotEmpty()) {
+            $this->loadedMessages = $olderMessages->concat($this->loadedMessages);
+            $this->oldestMessageId = $olderMessages->first()->id;
+        }
     }
 
     public function updatedConversationId()
     {
+        $this->paginated_var = 10; 
+        $this->oldestMessageId = null;
         $this->loadMessages();
     }
 
     public function sendMessage()
     {
+        Log::info('ChatBox: Message created, preparing to notify.');
+
         Validator::make([
             'body' => $this->body
         ], [
@@ -78,22 +96,78 @@ $countMessages = Message::where('conversation_id', $this->conversationId)->count
             'receiver_id' => $this->selectedConversation->getReceiver()->id,
             'body' => $this->body
         ]);
-
     
         $this->reset('body');
 
-         // Updatedd Conversation  at the top when a new message is sent to ensure the latest conversation order in the list
         $this->selectedConversation->updated_at = now();
         $this->selectedConversation->save();
 
-        $this->loadMessages();
+        $this->loadedMessages->push($createdMessage);
         
         $this->dispatch('scroll-to-bottom');
+        $this->dispatch('refresh-chat-list');
 
-           $this->dispatch('refresh-chat-list');
+        
 
+$this->selectedConversation->getReceiver()->notify(new MessageSent(
+            Auth()->User(),
+            $createdMessage,
+            $this->selectedConversation,
+            $this->selectedConversation->getReceiver()->id
+        ));
     }
 
+    //     $receiver = $this->selectedConversation->getReceiver();
+
+    //     if ($receiver) {
+    //         try {
+    //             Log::info('Sending Pusher Event to Channel: private-chat.' . $receiver->id);
+
+    //             $receiver->notify(new MessageSent(
+    //                 auth()->user(),
+    //                 $createdMessage,
+    //                 $this->selectedConversation,
+    //                 $receiver->id
+    //             ));
+                
+    //             Log::info('ChatBox: Notification sent successfully.');
+    //         } catch (\Exception $e) {
+    //             Log::error('ChatBox: Notification failed. Error: ' . $e->getMessage());
+    //         }
+    //     } else {
+    //         Log::warning('ChatBox: Receiver not found.');
+    //     }
+    // }
+
+    public function getListeners()
+    {
+        $auth_id = auth()->id();
+        return [
+             "echo-private:users.{$auth_id},.Illuminate\Notifications\Events\BroadcastNotificationCreated"=> 'broadcastNotifications'
+        ];
+    }
+
+    public function broadcastNotifications($event)
+    {
+    //    dd($event);
+     if ($event['type'] == MessageSent::class) {
+
+            if ($event['conversation_id'] == $this->selectedConversation->id) {
+
+                // $this->dispatchBrowserEvent('scroll-bottom');
+
+                $newMessage = Message::find($event['message_id']);
+
+
+                $this->loadedMessages->push($newMessage);
+
+                   $newMessage->read_at = now();
+                $newMessage->save();
+
+                
+    }}
+
+    }
     public function render()
     {
         return view('livewire.chat.chat-box');
