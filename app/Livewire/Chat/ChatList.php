@@ -11,7 +11,8 @@ class ChatList extends Component
     public $selectedConversation = null;
     public $query = null; 
 
-    public function render()
+ protected $listeners = ['refresh' => '$refresh'];
+     public function render()
     {
         $user = auth()->user();
         return view('livewire/chat.chat-list', [

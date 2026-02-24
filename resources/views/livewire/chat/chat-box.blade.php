@@ -10,7 +10,7 @@ x-data="
     @if($selectedConversation){    
     Echo.private('users.{{Auth()->User()->id}}')
         .notification((notification)=>{
-            if(notification['type']== 'App\\Notifications\\MessageRead' && notification['conversation_id']== {{$this->selectedConversation->id}})
+            if(notification['type']== 'App\\Notifications\\MessageRead' && notification['conversation_id']== {{$this->selectedConversation->id?? 'null'}})
             {
 alert('Messages marked as read');
                 markAsRead=true;

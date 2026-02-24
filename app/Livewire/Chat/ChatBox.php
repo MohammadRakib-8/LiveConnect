@@ -175,6 +175,10 @@ $this->selectedConversation->getReceiver()->notify(new MessageSent(
 
     public function broadcastNotifications($event)
     {
+        // 1. Safety check: If no conversation is selected, stop here.
+    if (!$this->selectedConversation) {
+        return;
+    }
     //    dd($event);
      if ($event['type'] == MessageSent::class) {
 

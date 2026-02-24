@@ -1,108 +1,167 @@
 <div
-   x-data="{type:'all'}" 
-   class="flex flex-col h-full w-full bg-white overflow-hidden">
-     
+   x-data="{type:'all', query: @entangle('query')}"
+   x-init="
+        setTimeout(()=>{
+            conversationElement = document.getElementById('conversation-'+query);
+            if(conversationElement)
+            {
+                conversationElement.scrollIntoView({'behavior':'smooth'});
+            }
+        },200);
+
+        Echo.private('users.{{Auth()->User()->id}}')
+        .notification((notification)=>{
+            if(notification['type']== 'App\\Notifications\\MessageRead' || notification['type']== 'App\\Notifications\\MessageSent')
+            {
+                $wire.dispatch('refresh');
+            }
+        });
+   "
+   class="flex flex-col transition-all h-full overflow-hidden">
+
     <!-- Header -->
-    <header class="px-5 z-10 bg-white/90 backdrop-blur-md sticky top-0 w-full py-4 border-b border-gray-100 rounded-b-2xl">
-        <div class="flex items-center justify-between mb-4">
-            <h5 class="font-extrabold text-2xl text-gray-800 tracking-tight">Chats</h5>
-            <!-- Optional: Add an icon button here later -->
+    <header class="px-3 z-10 bg-white sticky top-0 w-full py-2">
+        <div class="border-b justify-between flex items-center pb-2">
+            <div class="flex items-center gap-2">
+                 <h5 class="font-extrabold text-2xl">Chats</h5>
+            </div>
+             <button>
+                <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+             </button>
         </div>
 
         <!-- Filters -->
-        <div class="flex gap-3 items-center">
-            <button @click="type='all'" :class="{'bg-black text-black shadow-lg transform scale-105':type=='all'}" class="transition-all duration-300 ease-out inline-flex justify-center items-center rounded-full px-5 py-2 text-sm font-medium border border-transparent bg-gray-100 hover:bg-gray-200 text-gray-600">
+        <div class="flex gap-3 items-center overflow-x-scroll p-2 bg-white">
+            <button @click="type='all'" :class="{'bg-blue-100 border-0 text-black':type=='all'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 All
             </button>
-            <button @click="type='deleted'" :class="{'bg-black text-black shadow-lg transform scale-105':type=='deleted'}" class="transition-all duration-300 ease-out inline-flex justify-center items-center rounded-full px-5 py-2 text-sm font-medium border border-transparent bg-gray-100 hover:bg-gray-200 text-gray-600">
+            <button @click="type='deleted'" :class="{'bg-blue-100 border-0 text-black':type=='deleted'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 Deleted
             </button>
         </div>
     </header>
 
     <!-- Main List -->
-    <main class="overflow-y-scroll flex-1 border-t border-1 rounded-t-2xl  border-gray-300 p-10 space-y-1  bg-amber-50 ">
-        @if ($conversations)
-            @foreach ($conversations as $key => $conversation)
-                <li
-                    wire:key="{{$conversation->id}}"
-                    wire:click="selectConversation({{$conversation->id}})"
-                    class="group flex items-center gap-4 p-1 rounded-xl cursor-pointer transition-all duration-200 hover:bg-gray-50 hover:shadow-sm border-b border-2 {{ $conversation->id == $selectedConversation?->id ? 'bg-blue-50/80 shadow-sm ring-1 ring-blue-100' : '' }}"
-                >
-                <div class="relative shrink-0">
-                        <div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-white shadow-md">
-                            <img src="https://picsum.photos/200/200?random={{$key}}" class="w-full h-full object-cover" alt="Avatar">
-                        </div>
-                        <!-- Online Status -->
-                        @if($conversation->getReceiver()->is_online ?? false)
-                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
-                        @endif
-                    </div>
-
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+    <main class="overflow-y-scroll overflow-hidden grow h-full relative" style="contain:content">
+        <ul class="p-2 grid w-full spacey-y-2">
+            @if ($conversations)
+                @foreach ($conversations as $key => $conversation)
+                    <li
+                        id="conversation-{{$conversation->id}}"
+                        wire:key="{{$conversation->id}}"
+                        wire:click="selectConversation({{$conversation->id}})"
+                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-700/70 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id == $selectedConversation?->id ? 'bg-gray-100/70':''}}">
                         
-                        <!--  Name & Time -->
-                        <div class="flex justify-between items-baseline mb-0.5">
-                            <h6 class="text-base font-bold text-gray-900 truncate">
-                                {{ $conversation->getReceiver()->name }}
-                            </h6>
-                            <span class="text-xs font-medium text-gray-400 whitespace-nowrap ml-2">
-                                {{ $conversation->messages?->last()?->created_at?->shortAbsoluteDiffForHumans() }} 
-                            </span>
-                        </div>
-                        
-                        <!-- Tick & Message -->
-                        <div class="flex items-center gap-1.5">
-                            
-                            <!-- Tick Icon -->
-                            @if($lastMessage = $conversation->messages->last())
-                                @if($lastMessage->sender_id == auth()->id())
-                                    <div class="text-gray-400 shrink-0 flex items-center">
-                                        @if($lastMessage->isRead())
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16" fill="#3B82F6">
-                                                <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
-                                                <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
-                                            </svg>
-                                        @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-                                                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                @endif
+                        <!-- Avatar -->
+                        <a href="#" class="shrink-0">
+                            <div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-white shadow-md">
+                                <img src="https://picsum.photos/200/200?random={{$key}}" class="w-full h-full object-cover" alt="Avatar">
+                            </div>
+                            <!-- Online Status-->
+                            @if($conversation->getReceiver()->is_online ?? false)
+                                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
                             @endif
+                        </a>
 
-                            <!-- Message Text -->
-                            <p class="text-sm text-gray-500 truncate group-hover:text-gray-700 transition-colors">
-                                @if($conversation->messages && $conversation->messages->last())
-                                    {{ $conversation->messages->last()->body }}
-                                @else
-                                    <span class="italic text-gray-400 text-xs">Start a conversation...</span>
-                                @endif
-                            </p>
-                        </div>
+                        <aside class="grid grid-cols-12 w-full">
+                            <a href="{{route('chat',$conversation->id)}}" class="col-span-11 border-b pb-2 border-gray-200 relative overflow-hidden truncate leading-5 w-full flex-nowrap p-1">
+                                
+                                <!-- Name & Date -->
+                                <div class="flex justify-between w-full items-center">
+                                    <h6 class="truncate font-medium tracking-wider text-gray-900">
+                                        {{ $conversation->getReceiver()->name }}
+                                    </h6>
+                                    <small class="text-gray-700">
+                                        {{ $conversation->messages?->last()?->created_at?->shortAbsoluteDiffForHumans() }}
+                                    </small>
+                                </div>
 
-                    </div>
+                                <!-- Tick & Message -->
+                                <div class="flex gap-x-2 items-center">
+                                    
+                                    <!-- Tick -->
+                                    @if($lastMessage = $conversation->messages->last())
+                                        @if($lastMessage->sender_id == auth()->id())
+                                            <div class="text-gray-400 shrink-0 flex items-center">
+                                                @if($lastMessage->isRead())
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#3B82F6" viewBox="0 0 16 16">
+                                                        <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+                                                        <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    @endif
 
-                    <!-- Unread Badge -->
-                    @if($conversation->unreadMessagesCount() > 0)
-                        <div class="shrink-0 ml-1">
-                            <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-blue-600 rounded-full shadow-sm ring-2 ring-white">
-                                {{ $conversation->unreadMessagesCount() }}
-                            </span>
-                        </div>
-                    @endif
-                </li>
-            @endforeach
-        @else
-            <div class="text-center mt-10 text-gray-400">
-                <p>No conversations found.</p>
-            </div>
-        @endif
+                                    <!-- Message Text -->
+                                    <p class="grow truncate text-sm font-[100]">
+                                        @if($conversation->messages && $conversation->messages->last())
+                                            {{ $conversation->messages->last()->body }}
+                                        @else
+                                            <span class="italic text-gray-400 text-xs">Start a conversation...</span>
+                                        @endif
+                                    </p>
+
+                                    <!-- Unread Badge -->
+                                    @if($conversation->unreadMessagesCount() > 0)
+                                        <span class="font-bold p-px px-2 text-xs shrink-0 rounded-full bg-blue-500 text-white">
+                                            {{ $conversation->unreadMessagesCount() }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </a>
+
+                            <!-- Dropdown -->
+                            <div class="col-span-1 flex flex-col text-center my-auto">
+                                <x-dropdown align="right" width="48">
+                                    <x-slot name="trigger">
+                                        <button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical w-7 h-7 text-gray-700" viewBox="0 0 16 16">
+                                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                            </svg>
+                                        </button>
+                                    </x-slot>
+
+                                    <x-slot name="content">
+                                        <div class="w-full p-1">
+                                            <button class="items-center gap-3 flex w-full px-4 py-2 text-left text-sm leading-5 text-gray-500 hover:bg-gray-100 transition-all duration-150 ease-in-out focus:outline-none focus:bg-gray-100">
+                                                <span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                                    </svg>
+                                                </span>
+                                                View Profile
+                                            </button>
+                                            <button
+                                                onclick="confirm('Are you sure?')||event.stopImmediatePropagation()"
+                                                wire:click="deleteByUser('{{encrypt($conversation->id)}}')"
+                                                class="items-center gap-3 flex w-full px-4 py-2 text-left text-sm leading-5 text-gray-500 hover:bg-gray-100 transition-all duration-150 ease-in-out focus:outline-none focus:bg-gray-100">
+                                                <span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                                    </svg>
+                                                </span>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </x-slot>
+                                </x-dropdown>
+                            </div>
+                        </aside>
+                    </li>
+                @endforeach
+            @else
+                <div class="text-center mt-10 text-gray-400 p-4">
+                    <p>No conversations found.</p>
+                </div>
+            @endif
+        </ul>
     </main>
-    
-    <script>
-        console.log(@json($selectedConversation));
-    </script>
 </div>
