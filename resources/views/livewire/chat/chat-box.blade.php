@@ -30,7 +30,7 @@ alert('Messages marked as read');
         <!-- Header -->
         <header class="border-b border-gray-150 rounded-b-xl p-3 flex items-center gap-3 bg-white">
             @if($selectedConversation && $selectedConversation->getReceiver())
-                <img src="{{ $selectedConversation->getReceiver()->profile_photo_url ?? 'https://i.pravatar.cc/150?img=5' }}"
+                <img src="{{ $selectedConversation->getReceiver()->profile_photo_url ?? 'https://picsum.photos/200/200?random' }}"
                      class="w-10 h-10 rounded-full object-cover" />
             @else
                 <img src="https://i.pravatar.cc/150?img=5" class="w-10 h-10 rounded-full" />
