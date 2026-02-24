@@ -1,9 +1,24 @@
 <div   
-{{-- x-data="{height:0,
-    conversationElement:document.getElementById('conversation')}", 
-    x-init="height=conversationElement.scrollHeight;
-    nextTick(()=>conversationElement.scrollTop = height)" --}}
-    class="flex flex-col h-full relative">
+x-data="
+{{-- {height:0,
+    conversationElement:document.getElementById('conversation')} --}}
+    ", 
+    x-init="
+    {{-- height=conversationElement.scrollHeight;
+    nextTick(()=>conversationElement.scrollTop = height) --}}
+
+    @if($selectedConversation){    
+    Echo.private('users.{{Auth()->User()->id}}')
+        .notification((notification)=>{
+            if(notification['type']== 'App\\Notifications\\MessageRead' && notification['conversation_id']== {{$this->selectedConversation->id}})
+            {
+alert('Messages marked as read');
+                markAsRead=true;
+            }
+        });}
+        @endif
+    "
+    class="flex flex-col h-full relative overflow-y-auto">
 
     
     {{-- <div class="bg-red-500 text-white p-2 text-center font-bold">

@@ -6,6 +6,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 
 use App\Notifications\MessageSent;
+use App\Notifications\MessageRead;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator; 
 use Livewire\Component; 
@@ -25,8 +26,21 @@ class ChatBox extends Component
         $this->loadMessages();
     }
 
+
+
+
+
     public function loadMessages()
     {
+// $count=Message::where('conversation_id', $this->conversationId)->count();
+
+// $this->loadMessages=Message::where('conversation_id', $this->conversationId)
+// ->skip($count - $this->paginated_var)
+// ->take($this->paginated_var)
+// ->get();
+
+//  return $this->loadMessages;
+
         if ($this->conversationId) {
             $this->selectedConversation = Conversation::with('sender', 'receiver')
                 ->find($this->conversationId);
@@ -49,6 +63,15 @@ class ChatBox extends Component
         }
     }
 
+
+// public function loadMore():void{
+
+// $this->paginated_var += 10;
+// $this->loadMessages();
+
+// }
+
+
     public function loadMessagesMore()
     {
         if (!$this->oldestMessageId) {
@@ -67,6 +90,9 @@ class ChatBox extends Component
             $this->loadedMessages = $olderMessages->concat($this->loadedMessages);
             $this->oldestMessageId = $olderMessages->first()->id;
         }
+
+
+
     }
 
     public function updatedConversationId()
@@ -143,7 +169,7 @@ $this->selectedConversation->getReceiver()->notify(new MessageSent(
     {
         $auth_id = auth()->id();
         return [
-             "echo-private:users.{$auth_id},.Illuminate\Notifications\Events\BroadcastNotificationCreated"=> 'broadcastNotifications'
+             "echo-private:users.{$auth_id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated"=> 'broadcastNotifications'
         ];
     }
 
@@ -154,7 +180,7 @@ $this->selectedConversation->getReceiver()->notify(new MessageSent(
 
             if ($event['conversation_id'] == $this->selectedConversation->id) {
 
-                // $this->dispatchBrowserEvent('scroll-bottom');
+                $this->dispatch('scroll-bottom');
 
                 $newMessage = Message::find($event['message_id']);
 
@@ -162,10 +188,14 @@ $this->selectedConversation->getReceiver()->notify(new MessageSent(
                 $this->loadedMessages->push($newMessage);
 
                    $newMessage->read_at = now();
-                $newMessage->save();
+                   $newMessage->save();
+
+                $this->selectedConversation->getReceiver()
+                ->notify(new MessageRead($this->selectedConversation->getReceiver()->id));
+            }
 
                 
-    }}
+    }
 
     }
     public function render()
