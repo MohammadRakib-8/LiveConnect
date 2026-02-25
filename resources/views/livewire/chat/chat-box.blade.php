@@ -40,7 +40,13 @@ alert('Messages marked as read');
                 <h6 class="font-semibold">
                     {{ $selectedConversation?->getReceiver()?->name ?? 'User' }}
                 </h6>
-                <span class="text-xs text-green-500">Online</span>
+                @php
+                    $isOnline=$selectedConversation?->getReceiver()?->last_seen_at?->gt(now()->subMinutes(2)) ?? false;
+                @endphp
+                <span class="text-xs {{$isOnline ? 'text-green-500':'text-gray-400' }}">
+{{$isOnline ? 'Online':'Offline'}}
+
+                </span>
             </div>
         </header>
 
@@ -91,7 +97,7 @@ alert('Messages marked as read');
                         <!-- RECEIVER-->
                         <div class="flex items-start gap-2">
                             @if($message->sender)
-                                <img src="{{ $message->sender->profile_photo_url ?? 'https://i.pravatar.cc/150?img=5' }}"
+                                <img src="{{ $message->sender->profile_photo_url ?? 'https://picsum.photos/200/200?random' }}"
                                      class="w-8 h-8 rounded-full object-cover" />
                             @else
                                 <img src="" class="w-8 h-8 rounded-full object-cover" />

@@ -52,7 +52,7 @@
                         id="conversation-{{$conversation->id}}"
                         wire:key="{{$conversation->id}}"
                         wire:click="selectConversation({{$conversation->id}})"
-                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-700/70 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id == $selectedConversation?->id ? 'bg-gray-100/70':''}}">
+                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-400 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id == $selectedConversation?->id ? 'bg-gray-100/70':''}}">
                         
                         <!-- Avatar -->
                         <a href="#" class="shrink-0">
