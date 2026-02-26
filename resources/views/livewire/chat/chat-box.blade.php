@@ -51,7 +51,7 @@ alert('Messages marked as read');
         </header>
 
         <!-- Messages Area -->
-        <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr from-amber-100 via-amber-50 to-white" 
+        <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr bg-gradient-to-l from-slate-300 via-slate-50 to-slate-200" 
               >
             
             @if($loadedMessages && $loadedMessages->count() > 0)
@@ -60,7 +60,7 @@ alert('Messages marked as read');
                         <!-- SENDER MESSAGE -->
                         <div class="flex justify-end">
                             <div class="flex flex-col items-end max-w-xs lg:max-w-md">
-                                <div class="bg-lime-200 text-black p-4 rounded-2xl rounded-tr-none shadow text-base">
+                                <div class="bg-slate-300 text-black p-4 rounded-2xl rounded-tr-none shadow text-base">
                                     {{ $message->body }}
                                 </div>
                                 
@@ -104,7 +104,7 @@ alert('Messages marked as read');
                             @endif
                             
                             <div class="flex flex-col items-start max-w-xs lg:max-w-md">
-                                <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow text-sm">
+                                <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow text-md">
                                     {{ $message->body }}
                                 </div>
                                 <span class="text-[10px] text-black mt-1">
@@ -142,7 +142,7 @@ alert('Messages marked as read');
                                 class="col-span-10 bg-gray-100 border-0 outline-0 focus:border-0 focus:ring-0 hover:ring-0 rounded-lg  focus:outline-none"
                          >
                         <button x-bind:disabled="!(body && body.trim())" 
-                                class="col-span-2 bg-lime-200 text-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition" 
+                                class="col-span-2 bg-green-200 text-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition" 
                                 type='submit'>
                             Send
                         </button>

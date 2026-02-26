@@ -34,10 +34,10 @@
 
         <!-- Filters -->
         <div class="flex gap-3 items-center overflow-x-scroll p-2 bg-white">
-            <button @click="type='all'" :class="{'bg-blue-100 border-0 text-black':type=='all'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
+            <button @click="type='all'" :class="{'bg-green-200 border-0 text-black':type=='all'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 All
             </button>
-            <button @click="type='deleted'" :class="{'bg-blue-100 border-0 text-black':type=='deleted'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
+            <button @click="type='deleted'" :class="{'bg-green-200 border-0 text-black':type=='deleted'}" class="inline-flex justify-center items-center rounded-full gap-x-1 text-xs font-medium px-3 lg:px-5 py-1 lg:py-2.5 border">
                 Deleted
             </button>
         </div>
@@ -52,7 +52,7 @@
                         id="conversation-{{$conversation->id}}"
                         wire:key="{{$conversation->id}}"
                         wire:click="selectConversation({{$conversation->id}})"
-                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-gray-400 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id == $selectedConversation?->id ? 'bg-gray-100/70':''}}">
+                        class="py-3 hover:bg-gray-50 rounded-2xl dark:hover:bg-green-200 transition-colors duration-150 flex gap-4 relative w-full cursor-pointer px-2 {{$conversation->id == $selectedConversation?->id ? 'bg-gray-100/70':''}}">
                         
                         <!-- Avatar -->
                         <a href="#" class="shrink-0">
