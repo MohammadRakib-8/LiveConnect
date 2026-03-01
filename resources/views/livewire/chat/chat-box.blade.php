@@ -69,7 +69,7 @@
                 $el.scrollTop = newHeight - oldHeight;
                 height = newHeight;
             "
-     class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr bg-gradient-to-l from-slate-300 via-slate-50 to-slate-200" 
+     class="flex-1 overflow-y-auto p-4 space-y-4  bg-gradient-to-l from-slate-300 via-slate-50 to-slate-200" 
               >
             
             @if($loadedMessages && $loadedMessages->count() > 0)
