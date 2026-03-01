@@ -1,33 +1,34 @@
 <div   
-x-data="
-{{-- {height:0,
-    conversationElement:document.getElementById('conversation')} --}}
-    ", 
+    id="conversation"
+    x-data="
+        {
+            height: 0,
+            conversationElement: document.getElementById('conversation'),
+            markAsRead: false
+        }
+    " 
     x-init="
-    {{-- height=conversationElement.scrollHeight;
-    nextTick(()=>conversationElement.scrollTop = height) --}}
+        height = conversationElement.scrollHeight;
+        $nextTick(() => {
+            conversationElement.scrollTop = conversationElement.scrollHeight;
+        });
 
-    @if($selectedConversation){    
-    Echo.private('users.{{Auth()->User()->id}}')
-        .notification((notification)=>{
-            if(notification['type']== 'App\\Notifications\\MessageRead' && notification['conversation_id']== {{$this->selectedConversation->id?? 'null'}})
-            {
-alert('Messages marked as read');
-                markAsRead=true;
-            }
-        });}
+        @if($selectedConversation)    
+            Echo.private('users.{{Auth()->User()->id}}')
+                .notification((notification) => {
+                    if(notification['type'] == 'App\\Notifications\\MessageRead' && notification['conversation_id'] == {{$this->selectedConversation->id ?? 'null'}}) {
+                        alert('Messages marked as read');
+                        markAsRead = true;
+                    }
+                });
         @endif
     "
+    
+    
+
     class="flex flex-col h-full relative overflow-y-auto">
 
-    
-    {{-- <div class="bg-red-500 text-white p-2 text-center font-bold">
-        Current Conversation ID: {{ $conversationId ?? 'NULL' }}
-    </div> --}}
-
     @if($conversationId)
-
-        <!-- Header -->
         <header class="border-b border-gray-150 rounded-b-xl p-3 flex items-center gap-3 bg-white">
             @if($selectedConversation && $selectedConversation->getReceiver())
                 <img src="{{ $selectedConversation->getReceiver()->profile_photo_url ?? 'https://picsum.photos/200/200?random' }}"
@@ -44,14 +45,31 @@ alert('Messages marked as read');
                     $isOnline=$selectedConversation?->getReceiver()?->last_seen_at?->gt(now()->subMinutes(2)) ?? false;
                 @endphp
                 <span class="text-xs {{$isOnline ? 'text-green-500':'text-gray-400' }}">
-{{$isOnline ? 'Online':'Offline'}}
-
+                    {{$isOnline ? 'Online':'Offline'}}
                 </span>
             </div>
         </header>
 
-        <!-- Messages Area -->
-        <main class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr bg-gradient-to-l from-slate-300 via-slate-50 to-slate-200" 
+        <main
+            @scroll="
+                scrollTop = $el.scrollTop;
+                if(scrollTop <= 0 ){
+                    $wire.dispatch('loadMore');
+                }
+            "
+
+            @scroll-to-bottom.window="
+        $nextTick(() => {
+            $el.scrollTop = $el.scrollHeight;
+        });
+    "
+            @update-chat-height.window="
+                newHeight = $el.scrollHeight;
+                oldHeight = height;
+                $el.scrollTop = newHeight - oldHeight;
+                height = newHeight;
+            "
+     class="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-tr bg-gradient-to-l from-slate-300 via-slate-50 to-slate-200" 
               >
             
             @if($loadedMessages && $loadedMessages->count() > 0)
@@ -157,5 +175,4 @@ alert('Messages marked as read');
             <p class="text-gray-500 mt-2">Please select a conversation.</p>
         </div>
     @endif
-
 </div>
